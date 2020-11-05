@@ -1,7 +1,9 @@
 #!/bin/bash
 
-#This script will perform full enumeration scanning of the host
-#including:
+# Written by Michael Martire, 2020
+
+# This script will perform full enumeration scanning of the host
+# including:
 # *nmap full scan
 # *nmap detailed scans
 # *web scanning with nikto, dirb, GoBuster
