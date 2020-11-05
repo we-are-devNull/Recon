@@ -19,10 +19,13 @@ sudo recon.sh -i <IP Address> <options>
 
 options:
 
--h Display help menu \n
--i <IP address> IP address to scan \n
--n Skip non-std web scans \n
--q Quiet mode \n
--w skip web scans \n
+-h Display help menu
+
+-i <IP address> IP address to scan
+  
+-n Skip non-std web scans
+
+-q Quiet mode
+-w skip web scans
   
  
