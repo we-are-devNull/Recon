@@ -1,6 +1,6 @@
 Recon.sh 
 
-This script will perform full enumerationg scanning of host
+This script will perform full enumeration scanning of host
 
 includes:
 
