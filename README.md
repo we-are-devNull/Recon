@@ -26,6 +26,7 @@ options:
 -n Skip non-std web scans
 
 -q Quiet mode
+
 -w skip web scans
   
  
