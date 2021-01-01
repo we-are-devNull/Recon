@@ -15,7 +15,7 @@ nmap NSE scripts against: SMB, FTP
 
 Usage:
 
-sudo recon.sh -i <IP Address> <options>
+sudo recon.sh -i \<IP Address\> \<options\>
 
 options:
 
