@@ -182,8 +182,8 @@ then
 	echo 'GoBuster scan completed.'
 	echo
 	echo '********** Starting Nikto Scan on HTTP **************'
-	nikto -host $IP -timeout 1 2> /dev/null 1> $filepath/nikto_80
-        chown $user: %filepath/nikto_80	
+	nikto -host $IP -timeout 0 2> /dev/null 1> $filepath/nikto_80
+        chown $user: $filepath/nikto_80	
 
 
 else
@@ -193,8 +193,8 @@ else
 	echo 'GoBuster scan completed.'
 	echo
 	echo '********** Starting Nikto Scan on HTTPS **************'
-	nikto -host https://$IP -timeout 1 2> /dev/null 1> $filepath/nikto_443
-        chown $user: %filepath/nikto_443
+	nikto -host https://$IP -timeout 0 2> /dev/null 1> $filepath/nikto_443
+        chown $user: $filepath/nikto_443
 
 fi
 }
