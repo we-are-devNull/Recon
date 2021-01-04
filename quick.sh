@@ -208,14 +208,14 @@ then
 fi
 }
 
-# Non Standard HTTP Dirb scans
+# Non Standard HTTP Gobuster scans
 nonstand_http_scan() {
 if [[ $nonstd_scanning == true ]]
 then
 	echo
 	echo "********** Performing GoBuster Scan on http://$IP:$1 **********"
-	gobuster dir -k -w /medium.txt -u http://$IP:$1 -t 150 2> /dev/null 1>> $filepath/dirb_nonstd
-	echo >> $filepath/dirb_nonstd
+	gobuster dir -k -w /medium.txt -u http://$IP:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
+	echo >> $filepath/gobuster_nonstd
 	echo "finished."
 	echo
 fi
@@ -237,6 +237,7 @@ then
 	echo '********** Starting nmap SMB eternalblue script **************'
 	echo '\nEternal Blue\n' >> $filepath/smb
 	sudo nmap -p 139,445 --script=smb-vuln-ms17-010.nse $IP >> $filepath/smb
+	chown $user: $filepath/smb
 	echo 'script completed.'
 fi
 
