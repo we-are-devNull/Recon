@@ -32,6 +32,7 @@ usage() {
 	echo '-h Display this help menu'
 	echo '-i <IP>	Specify IP address to scan'
 	echo '-n Skip non-std web scans'
+	echo '-r Restore /etc/hosts file from backup'
 	echo '-s Skip nmap scripts'
 	echo '-q Specify quiet mode. (Runs without Banner).'
 	echo '-w Skip web scans'
@@ -181,7 +182,7 @@ web_scans() {
 if [[ $http == true ]]
 then
 	echo '********** Starting GoBuster Scan on HTTP **************'
-	gobuster dir -u http://$IP -w /medium.txt -t 150 2> /dev/null 1> $filepath/gobuster_80
+	gobuster dir -u ${webscan_url} -w /medium.txt -t 150 2> /dev/null 1> $filepath/gobuster_80
 	chown $user: $filepath/gobuster_80
 	echo 'GoBuster scan completed.'
 	echo
@@ -192,7 +193,7 @@ then
 
 else
 	echo '********** Starting GoBuster Scan on HTTPS **************'
-	gobuster dir -k -w /medium.txt -u https://$IP/ -t 150 2> /dev/null 1> $filepath/gobuster_443
+	gobuster dir -k -w /medium.txt -u https://${webscan_url}/ -t 150 2> /dev/null 1> $filepath/gobuster_443
 	chown $user: $filepath/gobuster_443
 	echo 'GoBuster scan completed.'
 	echo
@@ -218,7 +219,7 @@ if [[ $nonstd_scanning == true ]]
 then
 	echo
 	echo "********** Performing GoBuster Scan on http://$IP:$1 **********"
-	gobuster dir -k -w /medium.txt -u http://$IP:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
+	gobuster dir -k -w /medium.txt -u http://${webscan_url}:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
 	echo >> $filepath/gobuster_nonstd
 	echo "finished."
 	echo
@@ -302,10 +303,11 @@ quiet_mode=false
 nmap_scripts=true
 web_scanning=true
 nonstd_scanning=true
+restore_hosts_file=false
 
 #parse options
 hasI=0
-while getopts 'i:qhnsw' OPTION "$@"
+while getopts 'ihqnrsw' OPTION "$@"
 do
 	case ${OPTION} in
 		i)
@@ -322,6 +324,9 @@ do
 		n)
 			nonstd_scanning=false
 			;;
+		r)
+			restore_hosts_file=true
+			;;
 		s)
 			nmap_scripts=false
 			;;
@@ -334,6 +339,27 @@ do
 			;;
 	esac
 done
+
+if [[ "${remove_hosts_entry}" = true ]]
+then
+	echo '\n Restoring /etc/hosts file from backup.'
+	if test -f /etc/hosts.bak
+	then	
+		mv /etc/hosts.bak /etc/edit_hosts
+		if [[ "${?}" -ne 0 ]]
+		then
+			echo 'Unable to restore hosts file from backup.'
+		else
+			echo '/etc/hosts successfully restored.'
+			exit 0
+		fi
+	else
+		echo 'No /etc/hosts.bak file found.'
+		exit 0
+	fi
+fi
+
+
 if [[ $hasI -eq 0 ]]
 then
 		echo
@@ -341,6 +367,8 @@ then
 		echo
     usage
 fi
+
+
 
 
 ####################################################################################
@@ -378,6 +406,9 @@ fi
 # nmap scans #
 ##############
 
+# Edit hosts file
+edit_hosts='n'
+
 # set web port check #
 open_21=false
 open_80=false
@@ -389,8 +420,18 @@ last_octet=$(echo "${IP}" | awk -F . '{print $4}')
 
 #Directory for machines
 #directory='/home/kali/htb/boxes'
+if [["${remove_hosts_entry}" == true]]
+then
 read -p 'Enter Directory to save to : ' directory
 read -p 'Enter Name of machine : ' box_name
+read -p 'Do you want to add entry to /etc/hosts? ' edit_hosts
+if [[ "${edit_hosts}" == 'y']] || [[ "$edit_hosts" == 'Y' ]]
+	then
+		read -p 'Enter the domain (example.com): ' host_domain
+		echo 'Making backup of /etc/hosts to /etc/hosts.bak \n Use recon.sh -r to restore the hosts file'
+		cp /etc/hosts /etc/hosts.bak
+		echo '${IP}  {host_domain}' >> /etc/hosts
+fi
 
 
 # Set full file path
@@ -507,20 +548,38 @@ fi
 
 if [[ $open_80 == true ]]
 then
-	robots_url="http://$IP/robots.txt"
-	http=true
-	check_skip_web
+	if [[ "${edit_hosts}" != 'y' ]]
+	then
+		robots_url="http://${host_domain}/robots.txt"
+		webscan_url="http://${host_domain}/"
+		http=true
+		check_skip_web
+	else
+		robots_url="http://$IP/robots.txt"
+		webscan_url="http://$IP/"
+		http=true
+		check_skip_web
+	fi
 fi
 
 # Copy links on HTTPS page
-if [[ "$open_443" == true ]]
+if [[ "${open_443}" == true ]]
 then
-	robots_url="https://$IP/robots.txt"
-	http=false
-	check_skip_web
+	if [[ "${edit_hosts}" != 'y' ]]
+	then	
+		robots_url="https://${host_domain}/robots.txt"
+		webscan_url="https://${host_domain}/"
+		http=false
+		check_skip_web
+	else
+		robots_url="https://$IP/robots.txt"
+		webscan_url="https://$IP/"
+		http=false
+		check_skip_web
+	fi
 fi
 
-# check for web http_ports
+# check for non-standard web http_ports
 http_port_counter=0
 nonstandard_http_found=false
 echo
@@ -537,7 +596,7 @@ do
 	then
 		nonstandard_http_found=true
 		echo "$line" >> $filepath/nonstd_http
-		#increment port_counte
+		#increment port_counter
 		http_port_counter=$((port_counter + 1))
 	fi
 done < $filepath/http_ports
@@ -580,7 +639,7 @@ fi
 
 echo
 echo
-echo "*********** RECON of $IP Completed!! **********"
+echo "*********** RECON of ${box_name} Completed!! **********"
 echo "      *******************************************   "
 echo "             ****************************          "
 echo "                   ****************                "
@@ -591,5 +650,6 @@ echo
 echo 'Thank you for choosing RECON for all your nefarious needs!!!'
 echo
 echo
+
 # Exit Code
 exit 0
