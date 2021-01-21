@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Written by Michael Martire, 2020
+# Written by mikeydamootz 2020
+# please use responsibly and in accordance with the laws in your area
 
 # This script will perform full enumeration scanning of the host
 # including:
