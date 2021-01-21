@@ -1,4 +1,7 @@
 #!/bin/bash
+# Written by mikeydamootz 2020
+# Please use responsibly on your private network
+# See your local laws and requlations for legal usage
 
 #This script will perform similiar enumeration scanning of the host as Recon, but runs quicker and is better suited for CTFs.
 #including:
