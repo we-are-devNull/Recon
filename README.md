@@ -2,6 +2,8 @@ Recon.sh
 
 This script will perform full enumeration scanning of host
 
+** Copy medium.txt to ~/  for GoBuster to work, or modify the code. **
+
 includes:
 
 nmap full scan TCP, UDP
@@ -19,14 +21,12 @@ sudo recon.sh -i \<IP Address\> \<options\>
 
 options:
 
--h Display help menu
-
--i <IP address> IP address to scan
-  
--n Skip non-std web scans
-
--q Quiet mode
-
--w skip web scans
+	-h Display this help menu
+	-i <IP>	Specify IP address to scan
+	-n Skip non-std web scans
+	-r Restore /etc/hosts file from backup
+	-s Skip nmap scripts
+	-q Specify quiet mode. (Runs without Banner).
+	-w Skip web scans
   
  
