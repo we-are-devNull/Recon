@@ -656,8 +656,10 @@ fi
 ##################
 # nmap all ports #
 ##################
+echo '********** Starting nmap of all  65,535 ports **********'
 nmap -p- -T5 -sS -Pn ${IP} > $filepath/all_ports
 chown ${user}: $filepath/all_ports
+echo "Finished."
 
 if test -f $filepath/open_ports
 then
