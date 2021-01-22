@@ -4,6 +4,8 @@
 # Please use responsibly on your private network
 # See your local laws and requlations for legal usage
 
+# ENSURE YOU COPY medium.txt wordlist to your home directory or GoBuster will fail
+
 # This script will perform enumeration scanning of the host
 # including:
 # *nmap full scan
@@ -13,13 +15,13 @@
 # *nmap NSE scripts against: SMB, FTP,
 
 #############
-# Functions`#
+# Functions #
 #############
 #####################################################################################
 
-############
-#help menu #
-############
+#############
+# help menu #
+#############
 
 usage() {
 	echo
@@ -182,7 +184,7 @@ web_scans() {
 if [[ $http == true ]]
 then
 	echo '********** Starting GoBuster Scan on HTTP **************'
-	gobuster dir -u ${webscan_url} -w /medium.txt -t 150 2> /dev/null 1> $filepath/gobuster_80
+	gobuster dir -u ${webscan_url} -w /home/${user}/medium.txt -t 150 #2> /dev/null 1> $filepath/gobuster_80
 	chown $user: $filepath/gobuster_80
 	echo 'GoBuster scan completed.'
 	echo
@@ -193,7 +195,7 @@ then
 
 else
 	echo '********** Starting GoBuster Scan on HTTPS **************'
-	gobuster dir -k -w /medium.txt -u https://${webscan_url}/ -t 150 2> /dev/null 1> $filepath/gobuster_443
+	gobuster dir -k -w /home/${user}/medium.txt -u https://${webscan_url}/ -t 150 2> /dev/null 1> $filepath/gobuster_443
 	chown $user: $filepath/gobuster_443
 	echo 'GoBuster scan completed.'
 	echo
@@ -219,7 +221,7 @@ if [[ $nonstd_scanning == true ]]
 then
 	echo
 	echo "********** Performing GoBuster Scan on http://$IP:$1 **********"
-	gobuster dir -k -w /medium.txt -u http://${webscan_url}:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
+	gobuster dir -k -w /home/${user}/medium.txt -u http://${webscan_url}:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
 	echo >> $filepath/gobuster_nonstd
 	echo "finished."
 	echo
@@ -281,7 +283,6 @@ then
 	exit 1
 else
 	user="$(who | cut -d ' ' -f1 | uniq)"
-	echo "${user}"
 fi
 
 #Check if argurments passeed
@@ -306,14 +307,14 @@ nonstd_scanning=true
 restore_hosts_file=false
 
 #parse options
-hasI=0
-while getopts 'ihqnrsw' OPTION "$@"
+#hasI=0
+while getopts 'i:hqnrsw' OPTION "$@"
 do
 	case ${OPTION} in
 		i)
-			IP="$OPTARG"
+			IP="${OPTARG}"
 			valid_ip
-			hasI=1;
+			#hasI=1;
 			;;
 		h)
 			usage
@@ -325,7 +326,7 @@ do
 			nonstd_scanning=false
 			;;
 		r)
-			restore_hosts_file=true
+			remove_hosts_entry=true
 			;;
 		s)
 			nmap_scripts=false
@@ -345,7 +346,7 @@ then
 	echo '\n Restoring /etc/hosts file from backup.'
 	if test -f /etc/hosts.bak
 	then	
-		mv /etc/hosts.bak /etc/edit_hosts
+		mv /etc/hosts.bak /etc/hosts
 		if [[ "${?}" -ne 0 ]]
 		then
 			echo 'Unable to restore hosts file from backup.'
@@ -360,13 +361,13 @@ then
 fi
 
 
-if [[ $hasI -eq 0 ]]
-then
-		echo
-    echo "-i option is mandatory."
-		echo
-    usage
-fi
+#if [[ $hasI -eq 0 ]]
+# then
+# 		echo
+#     echo "-i option is mandatory."
+# 		echo
+#     usage
+# fi
 
 
 
@@ -420,17 +421,16 @@ last_octet=$(echo "${IP}" | awk -F . '{print $4}')
 
 #Directory for machines
 #directory='/home/kali/htb/boxes'
-if [["${remove_hosts_entry}" == true]]
-then
 read -p 'Enter Directory to save to : ' directory
 read -p 'Enter Name of machine : ' box_name
 read -p 'Do you want to add entry to /etc/hosts? ' edit_hosts
-if [[ "${edit_hosts}" == 'y']] || [[ "$edit_hosts" == 'Y' ]]
-	then
-		read -p 'Enter the domain (example.com): ' host_domain
-		echo 'Making backup of /etc/hosts to /etc/hosts.bak \n Use recon.sh -r to restore the hosts file'
-		cp /etc/hosts /etc/hosts.bak
-		echo '${IP}  {host_domain}' >> /etc/hosts
+if [[ ${edit_hosts} == 'y' ]] || [[ ${edit_hosts} == 'Y' ]]
+then
+	read -p 'Enter the domain (example.com): ' host_domain
+	echo 'Making backup of /etc/hosts to /etc/hosts.bak'
+	echo 'Use recon.sh -r to restore the hosts file'
+	cp /etc/hosts /etc/hosts.bak
+	echo "${IP}  ${host_domain}" >> /etc/hosts
 fi
 
 
@@ -548,7 +548,7 @@ fi
 
 if [[ $open_80 == true ]]
 then
-	if [[ "${edit_hosts}" != 'y' ]]
+	if [[ "${edit_hosts}" == 'y' ]]
 	then
 		robots_url="http://${host_domain}/robots.txt"
 		webscan_url="http://${host_domain}/"
@@ -565,7 +565,7 @@ fi
 # Copy links on HTTPS page
 if [[ "${open_443}" == true ]]
 then
-	if [[ "${edit_hosts}" != 'y' ]]
+	if [[ "${edit_hosts}" == 'y' ]]
 	then	
 		robots_url="https://${host_domain}/robots.txt"
 		webscan_url="https://${host_domain}/"
@@ -612,7 +612,7 @@ then
 		echo 'Non-standard HTTP ports found '
 		echo
 		echo > $filepath/dirb_nonstd
-		chown $user: $filepath/dirb_nonstd
+		chown $user: $filepath/gobuster_nonstd
 		while read line
 		do {
 			nonstand_http_scan "$line"
