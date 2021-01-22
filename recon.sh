@@ -615,6 +615,7 @@ fi
 
 if [[ $http_port_counter -ne 0 ]]
 then
+	echo '' > $filepath/gobuster_nonstd
 	if [[ "${edit_hosts}" == 'y' ]]
 	then	
 		webscan_url="http://${host_domain}/"
