@@ -231,6 +231,7 @@ then
 	curl ${webscan_url}:$1 -s | html2text >> $filepath/robots.txt
 	echo >> $filepath/robots.txt
 	chown $user: $filepath/robots.txt
+	echo "finished."
 	echo
 fi
 }
