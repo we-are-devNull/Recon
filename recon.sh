@@ -195,7 +195,7 @@ then
 
 else
 	echo '********** Starting GoBuster Scan on HTTPS **************'
-	gobuster dir -k -w /home/${user}/medium.txt -u https://${webscan_url}/ -t 150 2> /dev/null 1> $filepath/gobuster_443
+	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}/ -t 150 2> /dev/null 1> $filepath/gobuster_443
 	chown $user: $filepath/gobuster_443
 	echo 'GoBuster scan completed.'
 	echo
@@ -220,13 +220,13 @@ nonstand_http_scan() {
 if [[ $nonstd_scanning == true ]]
 then
 	echo
-	echo "********** Performing GoBuster Scan on http://$IP:$1 **********"
-	gobuster dir -k -w /home/${user}/medium.txt -u http://${webscan_url}:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
+	echo "********** Performing GoBuster Scan on ${webscan_url}:$1 **********"
+	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
 	echo >> $filepath/gobuster_nonstd
 	echo "finished."
 	echo
 	echo '********** Downloading nonstd HTTP Robots.txt **************'
-	echo 'Non-standard HTTP Robots.txt: ' >> $filepath/robots.txt
+	echo "Port $1 Robots.txt: " >> $filepath/robots.txt
 	echo >> $filepath/robots.txt
 	curl ${webscan_url}:$1 -s | html2text >> $filepath/robots.txt
 	echo >> $filepath/robots.txt
