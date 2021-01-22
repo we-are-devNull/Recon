@@ -170,7 +170,7 @@ else
 	echo 'HTTP Robots.txt: ' >> $filepath/robots.txt
 	echo >> $filepath/robots.txt
 fi
-curl robots_url -s | html2text >> $filepath/robots.txt
+curl -k robots_url -s | html2text >> $filepath/robots.txt
 echo >> $filepath/robots.txt
 chown $user: $filepath/robots.txt
 echo 'Download Complete.'
@@ -224,6 +224,13 @@ then
 	gobuster dir -k -w /home/${user}/medium.txt -u http://${webscan_url}:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
 	echo >> $filepath/gobuster_nonstd
 	echo "finished."
+	echo
+	echo '********** Downloading nonstd HTTP Robots.txt **************'
+	echo 'Non-standard HTTP Robots.txt: ' >> $filepath/robots.txt
+	echo >> $filepath/robots.txt
+	curl ${webscan_url}:$1 -s | html2text >> $filepath/robots.txt
+	echo >> $filepath/robots.txt
+	chown $user: $filepath/robots.txt
 	echo
 fi
 }
@@ -608,16 +615,21 @@ fi
 
 if [[ $http_port_counter -ne 0 ]]
 then
+	if [[ "${edit_hosts}" == 'y' ]]
+	then	
+		webscan_url="http://${host_domain}/"
+	else
+		webscan_url="http://$IP/"
+	fi
 		echo
 		echo 'Non-standard HTTP ports found '
 		echo
-		echo > $filepath/dirb_nonstd
-		chown $user: $filepath/gobuster_nonstd
 		while read line
 		do {
 			nonstand_http_scan "$line"
 		} < /dev/null
 	  done < $filepath/nonstd_http
+	  chown $user: $filepath/gobuster_nonstd
 fi
 
 
