@@ -220,12 +220,12 @@ nonstand_http_scan() {
 if [[ $nonstd_scanning == true ]]
 then
 	echo
-	echo "********** Performing GoBuster Scan on ${webscan_url}:$1 **********"
+	echo "********** Performing GoBuster Scan on ${webscan_url}:${1} **********"
 	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
 	echo >> $filepath/gobuster_nonstd
 	echo "finished."
 	echo
-	echo '********** Downloading nonstd HTTP Robots.txt **************'
+	echo '********** Downloading Port ${1} Robots.txt **************'
 	echo "Port $1 Robots.txt: " >> $filepath/robots.txt
 	echo >> $filepath/robots.txt
 	curl ${webscan_url}:$1 -s | html2text >> $filepath/robots.txt
@@ -548,6 +548,11 @@ chown $user: $filepath/services
 #############
 
 # Copy links on HTTP page
+
+if test -f "$filepath/robots.txt"
+then
+	rm ${filepath}/robots.txt
+fi
 if [[ $open_80 == true ]] || [[ $open_443 == true ]]
 then
 	echo '********** Robots.txt *********' > $filepath/robots.txt
@@ -558,12 +563,12 @@ then
 	if [[ "${edit_hosts}" == 'y' ]]
 	then
 		robots_url="http://${host_domain}/robots.txt"
-		webscan_url="http://${host_domain}/"
+		webscan_url="http://${host_domain}"
 		http=true
 		check_skip_web
 	else
 		robots_url="http://$IP/robots.txt"
-		webscan_url="http://$IP/"
+		webscan_url="http://$IP"
 		http=true
 		check_skip_web
 	fi
@@ -575,12 +580,12 @@ then
 	if [[ "${edit_hosts}" == 'y' ]]
 	then	
 		robots_url="https://${host_domain}/robots.txt"
-		webscan_url="https://${host_domain}/"
+		webscan_url="https://${host_domain}"
 		http=false
 		check_skip_web
 	else
 		robots_url="https://$IP/robots.txt"
-		webscan_url="https://$IP/"
+		webscan_url="https://$IP"
 		http=false
 		check_skip_web
 	fi
@@ -618,9 +623,9 @@ then
 	echo '' > $filepath/gobuster_nonstd
 	if [[ "${edit_hosts}" == 'y' ]]
 	then	
-		webscan_url="http://${host_domain}/"
+		webscan_url="http://${host_domain}"
 	else
-		webscan_url="http://$IP/"
+		webscan_url="http://$IP"
 	fi
 		echo
 		echo 'Non-standard HTTP ports found '
@@ -647,6 +652,28 @@ then
 	ftp_enum
 fi
 
+##################
+# nmap all ports #
+##################
+nmap -p- -T5 -sS -Pn ${IP} > $filepath/all_ports
+chown ${user}: $filepath/all_ports
+
+if test -f $filepath/open_ports
+then
+	rm $filepath/open_ports
+fi
+if test -f $filepath/nonstd_http
+then
+	rm $filepath/nonstd_http
+fi
+if test -f $filepath/http_ports
+then
+	rm $filepath/http_ports
+fi
+if test -f $filepath/full_scan
+then
+	rm $filepath/full_scan
+fi
 
 
 
