@@ -225,7 +225,7 @@ then
 	echo >> $filepath/gobuster_nonstd
 	echo "finished."
 	echo
-	echo '********** Downloading Port ${1} Robots.txt **************'
+	echo "********** Downloading Port ${1} Robots.txt **************"
 	echo "Port $1 Robots.txt: " >> $filepath/robots.txt
 	echo >> $filepath/robots.txt
 	curl ${webscan_url}:$1 -s | html2text >> $filepath/robots.txt
