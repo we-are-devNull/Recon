@@ -21,6 +21,7 @@ sudo recon.sh -i \<IP Address\> \<options\>
 
 options:
 
+	-a Add host to /etc/hosts file, no further enum
 	-h Display this help menu
 	-i <IP>	Specify IP address to scan
 	-n Skip non-std web scans
