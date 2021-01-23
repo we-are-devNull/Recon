@@ -31,6 +31,7 @@ usage() {
 	echo
 	echo 'OPTIONS:'
 	echo
+	echo '-a Add domain to /etc/hosts without enumeration'
 	echo '-h Display this help menu'
 	echo '-i <IP>	Specify IP address to scan'
 	echo '-n Skip non-std web scans'
@@ -195,7 +196,7 @@ then
 
 else
 	echo '********** Starting GoBuster Scan on HTTPS **************'
-	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}/ -t 150 2> /dev/null 1> $filepath/gobuster_443
+	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}/ -t 150  2> /dev/null 1> $filepath/gobuster_443
 	chown $user: $filepath/gobuster_443
 	echo 'GoBuster scan completed.'
 	echo
@@ -221,7 +222,7 @@ if [[ $nonstd_scanning == true ]]
 then
 	echo
 	echo "********** Performing GoBuster Scan on ${webscan_url}:${1} **********"
-	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}:$1 -t 150 2> /dev/null 1>> $filepath/gobuster_nonstd
+	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}:$1 -t 150 -x html,php,txt 2> /dev/null 1>> $filepath/gobuster_nonstd
 	echo >> $filepath/gobuster_nonstd
 	echo "finished."
 	echo
@@ -313,12 +314,16 @@ nmap_scripts=true
 web_scanning=true
 nonstd_scanning=true
 restore_hosts_file=false
+add_hosts=false
 
 #parse options
 #hasI=0
-while getopts 'i:hqnrsw' OPTION "$@"
+while getopts 'ai:hqnrsw' OPTION "$@"
 do
 	case ${OPTION} in
+		a)
+			add_hosts=true
+			;;
 		i)
 			IP="${OPTARG}"
 			valid_ip
@@ -366,6 +371,17 @@ then
 		echo 'No /etc/hosts.bak file found.'
 		exit 0
 	fi
+fi
+
+if [[ "${add_hosts}" = true ]] 
+then
+	read -p 'Enter the domain (example.com): ' host_domain
+	read -p 'Enter the IP address: ' IP
+	echo 'Making backup of /etc/hosts to /etc/hosts.bak'
+	echo 'Use recon.sh -r to restore the hosts file'
+	cp /etc/hosts /etc/hosts.bak
+	echo "${IP}  ${host_domain}" >> /etc/hosts
+	exit 0
 fi
 
 
