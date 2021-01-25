@@ -676,6 +676,21 @@ echo '********** Starting nmap of all  65,535 ports **********'
 nmap -p- -T5 -sS -Pn ${IP} > $filepath/all_ports
 chown ${user}: $filepath/all_ports
 echo "Finished."
+cat $filepath/all_ports | grep open | awk -F / '{print $1}' > $filepath/full_open
+diff $filepath/open_ports $filepath/full_open | grep '>' | sed 's/> //' > $filepath/port_diff
+[ -s $filepath/port_diff ]
+if [[ ${?} == 0 ]]
+then
+	while read line
+	do
+		ports="$ports,$line"
+	done < $filepath/port_diff
+	ports="$(echo $ports | cut -c2-)"
+	echo "additional ports found: ${ports}"
+	nmap_detailed
+	cat $filepath/detailed_scan | grep '[0-9][0-9]/tcp'| sed 's/syn-ack ttl 127 //g' > "$filepath/services"
+else
+	echo 'Full port scan found no additional open ports'
 
 if test -f $filepath/open_ports
 then
@@ -693,7 +708,18 @@ if test -f $filepath/full_scan
 then
 	rm $filepath/full_scan
 fi
-
+if test -f $filepath/full_open
+then
+	rm $filepath/full_open
+fi
+if test -f $filepath/port_diff
+then
+	rm $filepath/port_diff
+fi
+if test -f $filepath/all_ports
+then
+	rm $filepath/all_ports
+fi
 
 
 echo
