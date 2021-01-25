@@ -679,18 +679,22 @@ echo "Finished."
 cat $filepath/all_ports | grep open | awk -F / '{print $1}' > $filepath/full_open
 diff $filepath/open_ports $filepath/full_open | grep '>' | sed 's/> //' > $filepath/port_diff
 [ -s $filepath/port_diff ]
+ports=''
 if [[ ${?} == 0 ]]
 then
 	while read line
 	do
 		ports="$ports,$line"
-	done < $filepath/port_diff
+	done < $filepath/full_open
 	ports="$(echo $ports | cut -c2-)"
-	echo "additional ports found: ${ports}"
+	echo "Additional ports found: ${ports}. Running another detailed scan"
+	echo "detailed_scan & services will be overwritten. "
 	nmap_detailed
 	cat $filepath/detailed_scan | grep '[0-9][0-9]/tcp'| sed 's/syn-ack ttl 127 //g' > "$filepath/services"
 else
 	echo 'Full port scan found no additional open ports'
+fi
+
 
 if test -f $filepath/open_ports
 then
