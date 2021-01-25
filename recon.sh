@@ -185,7 +185,7 @@ web_scans() {
 if [[ $http == true ]]
 then
 	echo '********** Starting GoBuster Scan on HTTP **************'
-	gobuster dir -u ${webscan_url} -w /home/${user}/medium.txt -t 150 #2> /dev/null 1> $filepath/gobuster_80
+	gobuster dir -u ${webscan_url} -w /home/${user}/medium.txt -t 150 2> /dev/null 1> $filepath/gobuster_80
 	chown $user: $filepath/gobuster_80
 	echo 'GoBuster scan completed.'
 	echo
