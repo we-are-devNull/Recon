@@ -185,7 +185,7 @@ web_scans() {
 if [[ $http == true ]]
 then
 	echo '********** Starting GoBuster Scan on HTTP **************'
-	gobuster dir -u ${webscan_url} -w /home/${user}/medium.txt -t 150 -to 2 2> /dev/null 1> $filepath/gobuster_80
+	gobuster dir -u ${webscan_url} -w /home/${user}/medium.txt -t 150 --timeout 1s 2> /dev/null 1> $filepath/gobuster_80
 	chown $user: $filepath/gobuster_80
 	echo 'GoBuster scan completed.'
 	echo
@@ -196,7 +196,7 @@ then
 
 else
 	echo '********** Starting GoBuster Scan on HTTPS **************'
-	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}/ -t 150 -to 2 2> /dev/null 1> $filepath/gobuster_443
+	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}/ -t 150 --timeout 1s 2> /dev/null 1> $filepath/gobuster_443
 	chown $user: $filepath/gobuster_443
 	echo 'GoBuster scan completed.'
 	echo
@@ -222,7 +222,7 @@ if [[ $nonstd_scanning == true ]]
 then
 	echo
 	echo "********** Performing GoBuster Scan on ${webscan_url}:${1} **********"
-	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}:$1 -t 150 -to 2  2> /dev/null 1>> $filepath/gobuster_nonstd
+	gobuster dir -k -w /home/${user}/medium.txt -u ${webscan_url}:$1 -t 150 --timeout 1s 2> /dev/null 1>> $filepath/gobuster_nonstd
 	echo >> $filepath/gobuster_nonstd
 	echo "finished."
 	echo
