@@ -676,10 +676,10 @@ echo '********** Starting nmap of all  65,535 ports **********'
 nmap -p- -T5 -sS -Pn ${IP} > $filepath/all_ports
 chown ${user}: $filepath/all_ports
 echo "Finished."
+ports=''
 cat $filepath/all_ports | grep open | awk -F / '{print $1}' > $filepath/full_open
 diff $filepath/open_ports $filepath/full_open | grep '>' | sed 's/> //' > $filepath/port_diff
 [ -s $filepath/port_diff ]
-ports=''
 if [[ ${?} == 0 ]]
 then
 	while read line
