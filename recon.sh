@@ -404,27 +404,26 @@ fi
 # Banner #
 if [[ "${quiet_mode}" = false ]]
 then
-	echo ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-	echo ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-	echo '            **************************************************                 '
-	echo '																																							 '
-	echo '################################################################################'
-	echo '####         #####         ####         #####         #####     #########   ####'
-	echo '####   ####   ####   ##########   ##########   #####   ####      ########   ####'
-	echo '####   ####   ####   ##########   ##########   #####   ####   #   #######   ####'
-	echo '####   ####   ####   ##########   ##########   #####   ####   ##   ######   ####'
-	echo '####   ###   #####   ##########   ##########   #####   ####   ###   #####   ####'
-	echo '####        ######         ####   ##########   #####   ####   ####   ####   ####'
-	echo '####   ###   #####   ##########   ##########   #####   ####   #####   ###   ####'
-	echo '####   ####   ####   ##########   ##########   #####   ####   ######   ##   ####'
-	echo '####   ####   ####   ##########   ##########   #####   ####   #######   #   ####'
-	echo '####   ####   ####   ##########   ##########   #####   ####   ########      ####'
-	echo '####   ####   ####         ####         #####         #####   #########     ####'
-	echo '################################################################################'
-	echo '																																							 '
-	echo '             **************************************************                '
-	echo ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-	echo ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+	echo -e "\e[91m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\e[0m"
+	echo  " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo -e "\e[1;31m               ******\e[0m******\e[1;31m******\e[0m******\e[1;31m******\e[0m******\e[1;31m******\e[0m"
+	echo ''
+echo -e "\e[1;31m            @@@@@@@   @@@@@@@@   @@@@@@@   @@@@@@   @@@  @@@ \e[0m" 
+echo -e "\e[1;31m            @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@ @@@ \e[0m" 
+echo -e "\e[1;31m            @@!  @@@  @@!       !@@       @@!  @@@  @@!@!@@@  \e[0m"
+echo -e "\e[1;31m            !@!  @!@  !@!       !@!       !@!  @!@  !@!!@!@! \e[0m" 
+echo -e "\e[1;31m            @!@!!@!   @!!!:!    !@!       @!@  !@!  @!@ !!@! \e[0m" 
+echo -e "\e[91m             !@!@!    !!!!!:    !!!       !@!  !!!  !@!  !!! \e[0m" 
+echo -e "\e[91m            !!: :!!   !!:       :!!       !!:  !!!  !!:  !!!  \e[0m"
+echo -e "\e[91m            :!:  !:!  :!:       :!:       :!:  !:!  :!:  !:!  \e[0m"
+echo -e "\e[91m            ::   :::   :: ::::   ::: :::  ::::: ::   ::   ::   \e[0m"
+ echo "             :   : :  : :: ::    :: :: :   : :  :   ::    :   "
+	echo ''
+	echo -e "\e[1;31m               ******\e[0m******\e[1;31m******\e[0m******\e[1;31m******\e[0m******\e[1;31m******\e[0m"
+	echo -e " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo -e "\e[1;31m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\e[0m"
+	echo ''
+	echo ''
 fi
 
 ##############
@@ -532,13 +531,58 @@ ports="$(echo $ports | cut -c2-)"
 #Check if all ports closed
 if [[ $port_counter -eq 0 ]]
 then
-		echo '********** Host is either down, or all ports are closed/filtered. ***********'
+		echo '********** Quick Scan did not find open ports. Host down? ***********'
 		echo
 		echo 'nmap output: '
 		echo
 		cat $filepath/full_scan
 		echo
-		exit 1
+		echo '*********** Running scan of all 65,535 ports. ***********'
+		nmap -p- -T5 -sS -Pn ${IP} > $filepath/full_scan
+		#create line separated list of ports
+		cat $filepath/full_scan | grep open | grep / | awk -F / '{print $1}' > "$filepath/open_ports"
+		chown $user: $filepath/open_ports
+
+		#Read in ports and append to variable
+		port_counter=0
+		echo
+		while read line
+		do
+			ports="$ports,$line"
+			#increment port_counter
+			port_counter=$((port_counter + 1))
+			#Check for web open_ports
+			if  [[ $line -eq 21 ]]
+			then
+				open_21=true
+			fi
+			if [[ $line -eq 80 ]]
+			then
+				open_80=true
+			fi
+			if  [[ $line -eq 443 ]]
+			then
+				open_443=true
+			fi
+			if  [[ $line -eq 445 ]]
+			then
+				open_445=true
+			fi
+		done < $filepath/open_port
+		#Check if all ports closed
+		if [[ $port_counter -eq 0 ]]
+		then
+				echo '********** Scan of all ports found no open ports. ***********'
+				echo
+				echo 'nmap output: '
+				echo
+				cat $filepath/full_scan
+				echo
+				exit 1
+		else
+			echo "$port_counter ports open: $ports"
+			echo
+		fi
 else
 		echo "$port_counter ports open: $ports"
 		echo
