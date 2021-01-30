@@ -438,6 +438,7 @@ open_21=false
 open_80=false
 open_443=false
 open_445=false
+full_run=false
 
 #find last octet of machine
 last_octet=$(echo "${IP}" | awk -F . '{print $4}')
@@ -539,6 +540,7 @@ then
 		echo
 		echo '*********** Running scan of all 65,535 ports. ***********'
 		nmap -p- -T5 -sS -Pn ${IP} > $filepath/full_scan
+		full_run=true
 		#create line separated list of ports
 		cat $filepath/full_scan | grep open | grep / | awk -F / '{print $1}' > "$filepath/open_ports"
 		chown $user: $filepath/open_ports
@@ -716,27 +718,30 @@ fi
 ##################
 # nmap all ports #
 ##################
-echo '********** Starting nmap of all  65,535 ports **********'
-nmap -p- -T5 -sS -Pn ${IP} > $filepath/all_ports
-chown ${user}: $filepath/all_ports
-echo "Finished."
-ports=''
-cat $filepath/all_ports | grep open | awk -F / '{print $1}' > $filepath/full_open
-diff $filepath/open_ports $filepath/full_open | grep '>' | sed 's/> //' > $filepath/port_diff
-[ -s $filepath/port_diff ]
-if [[ ${?} == 0 ]]
+if [[ full_run == false ]]
 then
-	while read line
-	do
-		ports="$ports,$line"
-	done < $filepath/full_open
-	ports="$(echo $ports | cut -c2-)"
-	echo "Additional ports found: ${ports}. Running another detailed scan"
-	echo "detailed_scan & services will be overwritten. "
-	nmap_detailed
-	cat $filepath/detailed_scan | grep '[0-9][0-9]/tcp'| sed 's/syn-ack ttl 127 //g' > "$filepath/services"
-else
-	echo 'Full port scan found no additional open ports'
+	echo '********** Starting nmap of all  65,535 ports **********'
+	nmap -p- -T5 -sS -Pn ${IP} > $filepath/all_ports
+	chown ${user}: $filepath/all_ports
+	echo "Finished."
+	ports=''
+	cat $filepath/all_ports | grep open | awk -F / '{print $1}' > $filepath/full_open
+	diff $filepath/open_ports $filepath/full_open | grep '>' | sed 's/> //' > $filepath/port_diff
+	[ -s $filepath/port_diff ]
+	if [[ ${?} == 0 ]]
+	then
+		while read line
+		do
+			ports="$ports,$line"
+		done < $filepath/full_open
+		ports="$(echo $ports | cut -c2-)"
+		echo "Additional ports found: ${ports}. Running another detailed scan"
+		echo "detailed_scan & services will be overwritten. "
+		nmap_detailed
+		cat $filepath/detailed_scan | grep '[0-9][0-9]/tcp'| sed 's/syn-ack ttl 127 //g' > "$filepath/services"
+	else
+		echo 'Full port scan found no additional open ports'
+	fi
 fi
 
 
