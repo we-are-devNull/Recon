@@ -718,7 +718,7 @@ fi
 ##################
 # nmap all ports #
 ##################
-if [[ full_run == false ]]
+if [[ "$full_run" == false ]]
 then
 	echo '********** Starting nmap of all  65,535 ports **********'
 	nmap -p- -T5 -sS -Pn ${IP} > $filepath/all_ports
