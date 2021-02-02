@@ -160,22 +160,22 @@ echo "Download Complete."
 # Robots.txt #
 ##############
 download_robots(){
-echo
-if [[ $http == true ]]
-then
-	echo '********** Downloading HTTP Robots.txt **************'
+	echo
+	if [[ $http == true ]]
+	then
+		echo '********** Downloading HTTP Robots.txt **************'
+		echo >> $filepath/robots.txt
+		echo 'HTTP Robots.txt: ' >> $filepath/robots.txt
+	else
+		echo '********** Downloading HTTPS Robots.txt **************'
+		echo 'HTTP Robots.txt: ' >> $filepath/robots.txt
+		echo >> $filepath/robots.txt
+	fi
+	curl -k $robots_url -s >> $filepath/robots.txt
 	echo >> $filepath/robots.txt
-	echo 'HTTP Robots.txt: ' >> $filepath/robots.txt
-else
-	echo '********** Downloading HTTPS Robots.txt **************'
-	echo 'HTTP Robots.txt: ' >> $filepath/robots.txt
-	echo >> $filepath/robots.txt
-fi
-curl -k robots_url -s | html2text >> $filepath/robots.txt
-echo >> $filepath/robots.txt
-chown $user: $filepath/robots.txt
-echo 'Download Complete.'
-echo
+	chown $user: $filepath/robots.txt
+	echo 'Download Complete.'
+	echo
 }
 
 #############
@@ -229,7 +229,7 @@ then
 	echo "********** Downloading Port ${1} Robots.txt **************"
 	echo "Port $1 Robots.txt: " >> $filepath/robots.txt
 	echo >> $filepath/robots.txt
-	curl ${webscan_url}:$1 -s | html2text >> $filepath/robots.txt
+	curl -k ${webscan_url}:$1/robots.txt -s  >> $filepath/robots.txt
 	echo >> $filepath/robots.txt
 	chown $user: $filepath/robots.txt
 	echo "finished."
