@@ -1,6 +1,6 @@
 #!/bin/bash
 # Written by mikeydamootz 2020
-# https://github.com/mikeydamootz/Recon/blob/main/quick.sh
+
 # Please use responsibly on your private network
 # See your local laws and requlations for legal usage
 
