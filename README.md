@@ -4,7 +4,7 @@ This script will perform full enumeration scanning of host
 
 ** Copy medium.txt to ~/  for GoBuster to work, or modify the code. **
 
-includes:
+**includes**:
 
 * nmap full scan TCP, UDP
 * nmap detailed scans of found ports TCP, UDP
