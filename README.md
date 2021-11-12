@@ -15,9 +15,9 @@ This script will perform full enumeration scanning of host
 * web page brute force of nonstd http ports
 * nmap NSE scripts against: SMB, FTP
 
-Usage:
+## Usage:
 
-sudo recon.sh -i \<IP Address\> \<options\>
+**sudo recon.sh -i \<IP Address\> \<options\>**
 
 options:
 
