@@ -6,14 +6,14 @@ This script will perform full enumeration scanning of host
 
 includes:
 
-nmap full scan TCP, UDP
-nmap detailed scans of found ports TCP, UDP
-web scanning with nikto, dirb, gobuster
-listing links found on main page
-copy robots.txt
-identification of nonstandard http ports 
-web page brute force of nonstd http ports
-nmap NSE scripts against: SMB, FTP 
+nmap full scan TCP, UDP<br />
+nmap detailed scans of found ports TCP, UDP<br />
+web scanning with nikto, dirb, gobuster<br />
+listing links found on main page<br />
+copy robots.txt<br />
+identification of nonstandard http ports <br />
+web page brute force of nonstd http ports<br />
+nmap NSE scripts against: SMB, FTP <br />
 
 Usage:
 
