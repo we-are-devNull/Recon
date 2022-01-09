@@ -1,8 +1,5 @@
 #!/bin/bash
-# Written by mikeydamootz 2020
-
-# Please use responsibly on your private network
-# See your local laws and requlations for legal usage
+# Written by we-are-devNull 2020
 
 # ENSURE YOU COPY medium.txt wordlist to your home directory or GoBuster will fail
 
